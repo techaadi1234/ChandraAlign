@@ -1,5 +1,5 @@
 /**
- * ChandraAlign - Split-Screen Curtain Slider Inspector
+ * ChandraAlign - High-Fidelity Split-Screen Curtain Slider
  * Real-time sub-pixel comparison between Chandrayaan-2 optical swath and LROC reference map.
  */
 
@@ -15,14 +15,12 @@ class CurtainSliderInspector {
     this.position = this.options.initialPosition;
     this.isDragging = false;
     this.zoom = 1.0;
-    this.pan = { x: 0, y: 0 };
     this.diffMode = false;
-    this.edgeMode = false;
     this.nudgeOffset = { x: 0, y: 0 };
 
-    this.canvasCh2 = null;
-    this.canvasLroc = null;
-    this.canvasDiff = null;
+    this.cvsCh2 = null;
+    this.cvsLroc = null;
+    this.cvsDiff = null;
 
     this.initDOM();
     this.bindEvents();
@@ -42,15 +40,15 @@ class CurtainSliderInspector {
           <canvas id="cvs-curtain-ch2"></canvas>
         </div>
 
-        <!-- Layer 3: Sub-pixel Difference Overlay (Conditional) -->
-        <div class="curtain-layer" id="layer-diff" style="display: none; mix-blend-mode: difference; opacity: 0.9;">
+        <!-- Layer 3: Sub-pixel Difference Overlay -->
+        <div class="curtain-layer" id="layer-diff" style="display: none; mix-blend-mode: color-dodge; opacity: 0.85;">
           <canvas id="cvs-curtain-diff"></canvas>
         </div>
 
-        <!-- Draggable Divider Bar -->
+        <!-- Draggable Neon Divider Bar -->
         <div class="curtain-divider-bar" id="curtain-divider" style="left: 50%;">
           <div class="curtain-handle-knob">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="8 16 4 12 8 8"></polyline>
               <polyline points="16 8 20 12 16 16"></polyline>
             </svg>
@@ -59,13 +57,13 @@ class CurtainSliderInspector {
 
         <!-- Overlay HUD Badges -->
         <div class="canvas-hud-overlay" style="top: 12px; left: 12px;">
-          <span style="color: var(--accent-cyan);">◀ CH-2 OHRC (REGISTERED)</span>
+          <span style="color: var(--accent-cyan); font-weight: bold;">◀ CH-2 OHRC (0.25m/px REGISTERED)</span>
         </div>
         <div class="canvas-hud-overlay" style="top: 12px; right: 12px; left: auto;">
-          <span style="color: var(--accent-amber);">LROC NAC (REFERENCE) ▶</span>
+          <span style="color: var(--accent-amber); font-weight: bold;">LROC NAC (0.50m/px REFERENCE) ▶</span>
         </div>
         <div class="canvas-coords-overlay" id="curtain-stats-hud">
-          SPLIT: 50.0% | ZOOM: 1.0x | SUB-PIXEL OFFSET: (0.0px, 0.0px)
+          SPLIT: 50.0% | ZOOM: 1.0x | NUDGE: (0.00px, 0.00px)
         </div>
       </div>
     `;
@@ -114,11 +112,10 @@ class CurtainSliderInspector {
       window.addEventListener('touchend', onEnd);
     });
 
-    // Zoom on wheel
     this.viewport.addEventListener('wheel', (e) => {
       e.preventDefault();
       const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-      this.zoom = Math.max(0.5, Math.min(5.0, this.zoom * zoomFactor));
+      this.zoom = Math.max(0.5, Math.min(4.0, this.zoom * zoomFactor));
       this.updateHUD();
       this.redraw();
     });
@@ -130,12 +127,6 @@ class CurtainSliderInspector {
     if (this.divider) this.divider.style.left = `${pct}%`;
     if (this.layerCh2) this.layerCh2.style.clipPath = `polygon(0 0, ${pct}% 0, ${pct}% 100%, 0 100%)`;
     this.updateHUD();
-  }
-
-  setZoom(val) {
-    this.zoom = Math.max(0.5, Math.min(5.0, val));
-    this.updateHUD();
-    this.redraw();
   }
 
   nudge(dx, dy) {
@@ -166,9 +157,6 @@ class CurtainSliderInspector {
     }
   }
 
-  /**
-   * Procedurally render lunar terrain for both layers with accurate crater registration
-   */
   loadData(presetData) {
     this.presetData = presetData;
     this.setupCanvases();
@@ -176,7 +164,7 @@ class CurtainSliderInspector {
   }
 
   setupCanvases() {
-    const width = this.viewport.clientWidth || 800;
+    const width = this.viewport.clientWidth || 900;
     const height = this.viewport.clientHeight || 560;
 
     [this.cvsCh2, this.cvsLroc, this.cvsDiff].forEach(c => {
@@ -191,79 +179,67 @@ class CurtainSliderInspector {
     if (!this.cvsCh2 || !this.cvsLroc) return;
     const ctxCh2 = this.cvsCh2.getContext('2d');
     const ctxLroc = this.cvsLroc.getContext('2d');
-    const ctxDiff = this.cvsDiff.getContext('2d');
+    const ctxDiff = this.cvsDiff?.getContext('2d');
 
     const w = this.cvsCh2.width;
     const h = this.cvsCh2.height;
 
-    // Draw LROC base (reference)
-    this.drawLunarTerrain(ctxLroc, w, h, {
+    // LROC Reference
+    this.drawLunarShadedRelief(ctxLroc, w, h, {
       isLroc: true,
       zoom: this.zoom,
       offset: { x: 0, y: 0 },
       craters: this.presetData?.craters || []
     });
 
-    // Draw CH-2 registered layer (with sub-pixel alignment)
-    this.drawLunarTerrain(ctxCh2, w, h, {
+    // CH-2 Registered Layer
+    this.drawLunarShadedRelief(ctxCh2, w, h, {
       isLroc: false,
       zoom: this.zoom,
       offset: this.nudgeOffset,
       craters: this.presetData?.craters || []
     });
 
-    // Draw difference map
+    // Difference map
     if (ctxDiff) {
       this.drawDifferenceLayer(ctxDiff, w, h);
     }
   }
 
-  drawLunarTerrain(ctx, w, h, options) {
+  drawLunarShadedRelief(ctx, w, h, options) {
     ctx.save();
     ctx.clearRect(0, 0, w, h);
 
-    // Apply zoom and centered pan
     ctx.translate(w / 2, h / 2);
     ctx.scale(options.zoom, options.zoom);
     ctx.translate(-w / 2 + (options.offset.x || 0), -h / 2 + (options.offset.y || 0));
 
-    // Lunar regolith background gradient
-    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 50, w / 2, h / 2, w * 0.7);
+    const bgGrad = ctx.createRadialGradient(w * 0.45, h * 0.4, 40, w / 2, h / 2, w * 0.85);
     if (options.isLroc) {
-      bgGrad.addColorStop(0, '#2D3748');
-      bgGrad.addColorStop(0.6, '#1A202C');
-      bgGrad.addColorStop(1, '#0D111A');
+      bgGrad.addColorStop(0, '#384357');
+      bgGrad.addColorStop(0.5, '#222B3D');
+      bgGrad.addColorStop(1, '#0F1524');
     } else {
-      // CH-2 slightly higher contrast and crisp illumination
-      bgGrad.addColorStop(0, '#334155');
-      bgGrad.addColorStop(0.6, '#1E293B');
-      bgGrad.addColorStop(1, '#0B0F19');
+      bgGrad.addColorStop(0, '#424E66');
+      bgGrad.addColorStop(0.5, '#28344D');
+      bgGrad.addColorStop(1, '#111728');
     }
-
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Add high-frequency lunar regolith micro-texture (procedural noise dots)
-    ctx.fillStyle = options.isLroc ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.06)';
-    const seed = options.isLroc ? 42 : 84;
-    for (let i = 0; i < 600; i++) {
-      const rx = ((Math.sin(i * 99 + seed) * 10000) % 1 + 1) % 1 * w;
-      const ry = ((Math.cos(i * 33 + seed) * 10000) % 1 + 1) % 1 * h;
-      const rRad = ((i % 5) + 1) * 0.8;
+    // Micro-texture
+    const seed = options.isLroc ? 37 : 89;
+    ctx.fillStyle = options.isLroc ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.06)';
+    for (let i = 0; i < 500; i++) {
+      const rx = ((Math.sin(i * 123 + seed) * 10000) % 1 + 1) % 1 * w;
+      const ry = ((Math.cos(i * 456 + seed) * 10000) % 1 + 1) % 1 * h;
       ctx.beginPath();
-      ctx.arc(rx, ry, rRad, 0, Math.PI * 2);
+      ctx.arc(rx, ry, ((i % 4) + 1) * 0.8, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Render prominent lunar craters
-    const craters = options.craters.length > 0 ? options.craters : [
-      { ch2_center: [w * 0.3, h * 0.35], lroc_center: [w * 0.3, h * 0.35], semi_major: 65, semi_minor: 55, angle_deg: 15 },
-      { ch2_center: [w * 0.65, h * 0.6], lroc_center: [w * 0.65, h * 0.6], semi_major: 85, semi_minor: 75, angle_deg: -20 },
-      { ch2_center: [w * 0.45, h * 0.75], lroc_center: [w * 0.45, h * 0.75], semi_major: 40, semi_minor: 38, angle_deg: 40 }
-    ];
-
+    const craters = options.craters || [];
     craters.forEach((crater) => {
-      // Map crater coordinates relative to canvas dimensions
       const center = options.isLroc ? crater.lroc_center : crater.ch2_center;
       const cx = (center[0] / 1000) * w;
       const cy = (center[1] / 1000) * h;
@@ -275,43 +251,50 @@ class CurtainSliderInspector {
       ctx.translate(cx, cy);
       ctx.rotate(rot);
 
-      // Crater Outer Ejecta Rim Glow
+      // Bright outer ejecta halo
+      const ejectaGrad = ctx.createRadialGradient(0, 0, a * 0.8, 0, 0, a * 1.5);
+      ejectaGrad.addColorStop(0, options.isLroc ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.18)');
+      ejectaGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = ejectaGrad;
       ctx.beginPath();
-      ctx.ellipse(0, 0, a * 1.25, b * 1.25, 0, 0, Math.PI * 2);
-      ctx.fillStyle = options.isLroc ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.12)';
+      ctx.ellipse(0, 0, a * 1.5, b * 1.5, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Crater Rim Wall (Sunlit flank vs shadowed flank)
+      // Sunlit Rim Wall
       const rimGrad = ctx.createLinearGradient(-a, -b, a, b);
-      rimGrad.addColorStop(0, '#FFFFFF'); // Illuminated sun-facing rim
-      rimGrad.addColorStop(0.35, '#94A3B8');
-      rimGrad.addColorStop(0.7, '#0F172A');
-      rimGrad.addColorStop(1, '#020617'); // Dark shadowed rim
+      rimGrad.addColorStop(0, '#FFFFFF');
+      rimGrad.addColorStop(0.3, '#CBD5E1');
+      rimGrad.addColorStop(0.65, '#1E293B');
+      rimGrad.addColorStop(1, '#020617');
 
       ctx.beginPath();
       ctx.ellipse(0, 0, a, b, 0, 0, Math.PI * 2);
       ctx.fillStyle = rimGrad;
       ctx.fill();
 
-      // Deep Shadowed Crater Interior Basin
+      // Deep shadowed floor
       ctx.beginPath();
-      ctx.ellipse(a * 0.12, b * 0.12, a * 0.75, b * 0.75, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#05070D';
+      ctx.ellipse(a * 0.15, b * 0.15, a * 0.72, b * 0.72, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#060911';
       ctx.fill();
 
-      // Central Uplift Peaklet (if complex crater)
-      if (a > 30) {
+      // Central Uplift
+      if (a > 24) {
+        const peakGrad = ctx.createRadialGradient(a * 0.05, b * 0.05, 1, a * 0.05, b * 0.05, a * 0.2);
+        peakGrad.addColorStop(0, '#FFFFFF');
+        peakGrad.addColorStop(0.6, '#94A3B8');
+        peakGrad.addColorStop(1, '#0F172A');
         ctx.beginPath();
-        ctx.arc(a * 0.05, b * 0.05, a * 0.15, 0, Math.PI * 2);
-        ctx.fillStyle = options.isLroc ? '#CBD5E1' : '#F1F5F9';
+        ctx.arc(a * 0.05, b * 0.05, a * 0.18, 0, Math.PI * 2);
+        ctx.fillStyle = peakGrad;
         ctx.fill();
       }
 
       ctx.restore();
     });
 
-    // Sub-pixel grid overlay (very subtle)
-    ctx.strokeStyle = 'rgba(0, 240, 255, 0.06)';
+    // Sub-pixel grid overlay
+    ctx.strokeStyle = 'rgba(0, 242, 254, 0.06)';
     ctx.lineWidth = 1;
     for (let x = 0; x < w; x += 50) {
       ctx.beginPath();
@@ -332,8 +315,7 @@ class CurtainSliderInspector {
   drawDifferenceLayer(ctx, w, h) {
     ctx.save();
     ctx.clearRect(0, 0, w, h);
-    // Render high-pass difference glow between layers
-    ctx.fillStyle = 'rgba(0, 240, 255, 0.12)';
+    ctx.fillStyle = 'rgba(0, 242, 254, 0.18)';
     ctx.fillRect(0, 0, w, h);
     ctx.restore();
   }

@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
 
@@ -24,7 +24,7 @@
         </svg>
       </div>
       <div class="brand-titles">
-        <h1>Chandra<span>Align</span></h1>
+        <h1>CHANDRA<span>ALIGN</span></h1>
         <div class="brand-tagline">ISRO SIH // CHANDRAYAAN-2 &bull; LROC SUB-PIXEL REGISTRATION</div>
       </div>
     </div>
@@ -48,7 +48,7 @@
       </div>
 
       <div class="telemetry-chip">
-        <div class="pulse-dot"></div>
+        <div class="pulse-dot cyan"></div>
         <span class="chip-label">RMSE:</span>
         <span class="chip-value" style="color: var(--accent-cyan);" id="hdr-subpixel-rmse">0.2643 px</span>
       </div>
@@ -56,14 +56,16 @@
 
     <!-- Header Controls -->
     <div class="header-controls">
-      <select class="select-preset" id="select-lunar-preset">
-        <option value="boguslawsky_south_pole">Preset 1: Boguslawsky Crater (70.9°S)</option>
-        <option value="shackleton_rim">Preset 2: Shackleton Crater Rim (89.9°S)</option>
-        <option value="tycho_crater_rays">Preset 3: Tycho Central Peak (43.3°S)</option>
-      </select>
+      <div class="select-preset-wrapper">
+        <select class="select-preset" id="select-lunar-preset">
+          <option value="boguslawsky_south_pole">Preset 1: Boguslawsky Crater (70.9°S)</option>
+          <option value="shackleton_rim">Preset 2: Shackleton Crater Rim (89.9°S)</option>
+          <option value="tycho_crater_rays">Preset 3: Tycho Central Peak (43.3°S)</option>
+        </select>
+      </div>
 
       <button class="btn-primary" id="btn-run-registration">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
         RUN REGISTRATION
@@ -114,7 +116,7 @@
           <path d="M6 20v-6"></path>
         </svg>
         Tab 4: Telemetry Metrics & Export
-        <span class="badge-pill" style="color:var(--accent-emerald); border-color:var(--accent-emerald);">0.2643 px</span>
+        <span class="badge-pill" style="color:var(--accent-emerald); border-color:rgba(16,185,129,0.4);">0.2643 px</span>
       </button>
     </div>
 
@@ -142,7 +144,13 @@
               <span class="tag-ch2">CHANDRAYAAN-2</span>
               <span>OHRC Optical Swath (0.25 m/px)</span>
             </div>
-            <div style="color:var(--text-muted);">AI SEGMENTED ELLIPSES (CYAN)</div>
+            <div class="viewer-controls-cluster">
+              <button class="mini-tool-btn" id="btn-zoom-in-ch2" title="Zoom In">+</button>
+              <button class="mini-tool-btn" id="btn-zoom-out-ch2" title="Zoom Out">-</button>
+              <button class="mini-tool-btn" id="btn-zoom-reset-ch2" title="Reset Zoom">1:1</button>
+              <div style="width:1px; height:14px; background:var(--border-subtle); margin:0 2px;"></div>
+              <span style="color:var(--accent-cyan); font-weight:700; font-size:0.68rem;">AI ELLIPSES (CYAN)</span>
+            </div>
           </div>
           <div class="canvas-viewport">
             <canvas id="cvs-landmark-ch2"></canvas>
@@ -158,12 +166,18 @@
               <span class="tag-lroc">LROC NAC</span>
               <span>Reference Base Map (0.50 m/px)</span>
             </div>
-            <div style="color:var(--text-muted);">CORRESPONDING ELLIPSES (AMBER)</div>
+            <div class="viewer-controls-cluster">
+              <button class="mini-tool-btn" id="btn-zoom-in-lroc" title="Zoom In">+</button>
+              <button class="mini-tool-btn" id="btn-zoom-out-lroc" title="Zoom Out">-</button>
+              <button class="mini-tool-btn" id="btn-zoom-reset-lroc" title="Reset Zoom">1:1</button>
+              <div style="width:1px; height:14px; background:var(--border-subtle); margin:0 2px;"></div>
+              <span style="color:var(--accent-amber); font-weight:700; font-size:0.68rem;">CORRESPONDING (AMBER)</span>
+            </div>
           </div>
           <div class="canvas-viewport">
             <canvas id="cvs-landmark-lroc"></canvas>
-            <div class="canvas-hud-overlay">LROC NAC REFERENCE</div>
-            <div class="canvas-coords-overlay">GLOBAL BASEMAP TILES</div>
+            <div class="canvas-hud-overlay">LROC NAC BASEMAP</div>
+            <div class="canvas-coords-overlay">GLOBAL REFERENCE TILES</div>
           </div>
         </div>
       </div>
@@ -179,10 +193,18 @@
             </svg>
             AI Crater Landmark Ellipse Parameter Estimates
           </div>
-          <div class="hud-actions">
+          <div class="table-filter-bar">
+            <div class="search-input-box">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="input-crater-search" placeholder="Search crater ID or name..." />
+            </div>
+
             <div style="display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-secondary);">
-              <span>CONFIDENCE THRESHOLD:</span>
-              <input type="range" id="filter-confidence-slider" min="0.70" max="0.99" step="0.01" value="0.85" style="width:100px; accent-color:var(--accent-cyan);" />
+              <span>CONFIDENCE:</span>
+              <input type="range" id="filter-confidence-slider" min="0.70" max="0.99" step="0.01" value="0.85" style="width:110px; accent-color:var(--accent-cyan);" />
               <span id="filter-confidence-val" style="color:var(--accent-cyan); font-weight:bold;">85%</span>
             </div>
           </div>
@@ -233,10 +255,10 @@
           <div class="match-canvas-container">
             <canvas id="cvs-keypoint-matches"></canvas>
             <div class="canvas-hud-overlay">
-              <span style="color:var(--accent-cyan);">● CH-2</span> &nbsp;
-              <span style="color:var(--accent-emerald);">─ INLIER RAY</span> &nbsp;
-              <span style="color:var(--accent-crimson);">─ OUTLIER</span> &nbsp;
-              <span style="color:var(--accent-amber);">● LROC</span>
+              <span style="color:var(--accent-cyan); font-weight:bold;">● CH-2</span> &nbsp;
+              <span style="color:var(--accent-emerald); font-weight:bold;">─ INLIER RAY</span> &nbsp;
+              <span style="color:var(--accent-crimson); font-weight:bold;">─ OUTLIER</span> &nbsp;
+              <span style="color:var(--accent-amber); font-weight:bold;">● LROC</span>
             </div>
           </div>
         </div>
@@ -254,7 +276,7 @@
               </svg>
               10x10 ANMS Spatial Uniformity Heatmap
             </div>
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-emerald);">
+            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-emerald); font-weight:700;">
               U = 0.9972 (UNIFORM)
             </div>
           </div>
@@ -268,12 +290,12 @@
             <div id="anms-grid-container"></div>
 
             <div class="heatmap-legend">
-              <span style="color:#64748B;">SPARSE (1-3)</span>
+              <span style="color:#64748B; font-weight:600;">SPARSE (1-3)</span>
               <div class="legend-ramp"></div>
-              <span style="color:var(--accent-amber);">DENSE (7+)</span>
+              <span style="color:var(--accent-amber); font-weight:600;">DENSE (7+)</span>
             </div>
 
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-cyan); background:#080D1A; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);" id="anms-hover-info">
+            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-cyan); background:#060A14; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);" id="anms-hover-info">
               Hover over a sector cell or click to filter match vectors.
             </div>
           </div>
@@ -299,7 +321,7 @@
         <div style="display:flex; align-items:center; gap:16px;">
           <!-- Micro-step Nudge Controls for sub-pixel inspection -->
           <div style="display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-secondary);">
-            <span>NUDGE:</span>
+            <span style="font-weight:700;">NUDGE:</span>
             <button class="control-btn-icon" id="btn-nudge-left" title="Nudge X -0.1px">◀</button>
             <button class="control-btn-icon" id="btn-nudge-right" title="Nudge X +0.1px">▶</button>
             <button class="control-btn-icon" id="btn-nudge-up" title="Nudge Y -0.1px">▲</button>
@@ -314,7 +336,7 @@
             <div class="toggle-switch" id="switch-diff-knob">
               <div class="toggle-switch-knob"></div>
             </div>
-            <span>DIFFERENCE BLEND</span>
+            <span style="font-weight:700;">DIFFERENCE BLEND</span>
           </label>
         </div>
       </div>
@@ -335,12 +357,12 @@
          ==================================================================== -->
     <section class="tab-pane" id="pane-tab-telemetry">
       <!-- 4 Primary KPI Cards -->
-      <div class="grid-4col" style="margin-bottom: 20px;">
+      <div class="grid-4col" style="margin-bottom: 18px;">
         <!-- Card 1: RMSE -->
         <div class="metric-kpi-card">
           <div class="kpi-title">
             <span>Sub-Pixel Registration RMSE</span>
-            <span style="color:var(--accent-cyan);">TARGET: &lt;0.5 px</span>
+            <span style="color:var(--accent-cyan); font-weight:700;">TARGET: &lt;0.5 px</span>
           </div>
           <div class="kpi-value cyan" id="kpi-rmse-px">0.2643 px</div>
           <div class="kpi-subtext" id="kpi-rmse-meters">≈ 0.0661 m ground resolution</div>
@@ -350,7 +372,7 @@
         <div class="metric-kpi-card emerald">
           <div class="kpi-title">
             <span>ANMS Spatial Uniformity Index</span>
-            <span style="color:var(--accent-emerald);">U &ge; 0.95</span>
+            <span style="color:var(--accent-emerald); font-weight:700;">U &ge; 0.95</span>
           </div>
           <div class="kpi-value emerald" id="kpi-uniformity">0.9972</div>
           <div class="kpi-subtext">Optimal 100-sector coverage</div>
@@ -360,7 +382,7 @@
         <div class="metric-kpi-card">
           <div class="kpi-title">
             <span>RANSAC Inlier Ratio</span>
-            <span style="color:var(--accent-cyan);">PASS</span>
+            <span style="color:var(--accent-cyan); font-weight:700;">PASS</span>
           </div>
           <div class="kpi-value cyan" id="kpi-inlier-ratio">95.74%</div>
           <div class="kpi-subtext" id="kpi-inlier-count">487 / 509 match vectors</div>
@@ -370,7 +392,7 @@
         <div class="metric-kpi-card amber">
           <div class="kpi-title">
             <span>Structural Similarity (SSIM)</span>
-            <span style="color:var(--accent-amber);">POST-REG</span>
+            <span style="color:var(--accent-amber); font-weight:700;">POST-REG</span>
           </div>
           <div class="kpi-value amber" id="kpi-ssim">0.8739</div>
           <div class="kpi-subtext" id="kpi-ssim-gain">Pre: 0.5421 (+33.18%)</div>
@@ -378,7 +400,7 @@
       </div>
 
       <!-- Secondary Telemetry Grid: Transformation Matrix & Pipeline Latency -->
-      <div class="grid-2col" style="margin-bottom: 20px;">
+      <div class="grid-2col" style="margin-bottom: 18px;">
         <!-- Homography Transformation Matrix -->
         <div class="hud-panel">
           <div class="hud-header">
@@ -401,9 +423,9 @@
           </div>
 
           <div class="matrix-display" id="homography-matrix-grid">
-            <div>0.999824</div><div>-0.000733</div><div>-14.2810</div>
-            <div>0.000733</div><div>0.999824</div><div>8.91400</div>
-            <div>0.000000</div><div>-0.000000</div><div>1.000000</div>
+            <div class="matrix-cell">0.999824</div><div class="matrix-cell">-0.000733</div><div class="matrix-cell">-14.2810</div>
+            <div class="matrix-cell">0.000733</div><div class="matrix-cell">0.999824</div><div class="matrix-cell">8.91400</div>
+            <div class="matrix-cell">0.000000</div><div class="matrix-cell">-0.000000</div><div class="matrix-cell">1.000000</div>
           </div>
         </div>
 
@@ -417,23 +439,23 @@
               </svg>
               Pipeline Latency Breakdown (162 ms Total)
             </div>
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-emerald);" id="kpi-latency-total">
+            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-emerald); font-weight:700;" id="kpi-latency-total">
               162 ms
             </div>
           </div>
 
           <div class="latency-bar-container">
-            <div class="latency-slice" id="lat-seg" style="width: 29.6%; background: #00F0FF;" title="Crater Segmentation (48ms)"></div>
+            <div class="latency-slice" id="lat-seg" style="width: 29.6%; background: #00F2FE;" title="Crater Segmentation (48ms)"></div>
             <div class="latency-slice" id="lat-feat" style="width: 38.3%; background: #0284C7;" title="Feature Extraction (62ms)"></div>
-            <div class="latency-slice" id="lat-anms" style="width: 11.1%; background: #00E676;" title="ANMS Suppression (18ms)"></div>
-            <div class="latency-slice" id="lat-homo" style="width: 21.0%; background: #FFB300;" title="Sub-Pixel Homography (34ms)"></div>
+            <div class="latency-slice" id="lat-anms" style="width: 11.1%; background: #10B981;" title="ANMS Suppression (18ms)"></div>
+            <div class="latency-slice" id="lat-homo" style="width: 21.0%; background: #FFB800;" title="Sub-Pixel Homography (34ms)"></div>
           </div>
 
           <div class="latency-legend">
-            <div><span style="color:#00F0FF;">■</span> Crater Segmentation: <strong id="lat-seg-val">48ms</strong></div>
+            <div><span style="color:#00F2FE;">■</span> Crater Segmentation: <strong id="lat-seg-val">48ms</strong></div>
             <div><span style="color:#0284C7;">■</span> Feature Extraction: <strong id="lat-feat-val">62ms</strong></div>
-            <div><span style="color:#00E676;">■</span> ANMS Suppression: <strong id="lat-anms-val">18ms</strong></div>
-            <div><span style="color:#FFB300;">■</span> Sub-Pixel Homography: <strong id="lat-homo-val">34ms</strong></div>
+            <div><span style="color:#10B981;">■</span> ANMS Suppression: <strong id="lat-anms-val">18ms</strong></div>
+            <div><span style="color:#FFB800;">■</span> Sub-Pixel Homography: <strong id="lat-homo-val">34ms</strong></div>
           </div>
         </div>
       </div>

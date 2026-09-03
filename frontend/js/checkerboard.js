@@ -8,14 +8,14 @@ class CheckerboardInspector {
     this.container = document.getElementById(containerId);
     this.options = Object.assign({
       gridDivisions: 8,
-      blinkRateHz: 0, // 0 = static, 2 = 2Hz, 4 = 4Hz
+      blinkRateHz: 0,
       showEdges: false
     }, options);
 
     this.gridDivisions = this.options.gridDivisions;
     this.blinkRateHz = this.options.blinkRateHz;
     this.showEdges = this.options.showEdges;
-    this.blinkPhase = 0; // 0 or 1
+    this.blinkPhase = 0;
     this.blinkInterval = null;
     this.presetData = null;
 
@@ -37,19 +37,19 @@ class CheckerboardInspector {
 
         <div class="checkerboard-hud-controls">
           <div style="display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-secondary);">
-            <span>GRID:</span>
-            <button class="btn-secondary" style="padding:4px 8px;" id="chk-grid-4">4x4</button>
-            <button class="btn-secondary active" style="padding:4px 8px; border-color:var(--accent-cyan); color:var(--accent-cyan);" id="chk-grid-8">8x8</button>
-            <button class="btn-secondary" style="padding:4px 8px;" id="chk-grid-16">16x16</button>
+            <span style="font-weight:700;">GRID:</span>
+            <button class="btn-secondary" style="padding:4px 9px;" id="chk-grid-4">4x4</button>
+            <button class="btn-secondary active" style="padding:4px 9px; border-color:var(--accent-cyan); color:var(--accent-cyan);" id="chk-grid-8">8x8</button>
+            <button class="btn-secondary" style="padding:4px 9px;" id="chk-grid-16">16x16</button>
           </div>
 
           <div style="width:1px; height:20px; background:var(--border-subtle);"></div>
 
           <div style="display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-secondary);">
-            <span>BLINK INSPECTION:</span>
-            <button class="btn-secondary" style="padding:4px 8px;" id="chk-blink-off">OFF</button>
-            <button class="btn-secondary" style="padding:4px 8px;" id="chk-blink-2hz">2 Hz</button>
-            <button class="btn-secondary" style="padding:4px 8px;" id="chk-blink-4hz">4 Hz</button>
+            <span style="font-weight:700;">BLINK INSPECTION:</span>
+            <button class="btn-secondary" style="padding:4px 9px;" id="chk-blink-off">OFF</button>
+            <button class="btn-secondary" style="padding:4px 9px;" id="chk-blink-2hz">2 Hz</button>
+            <button class="btn-secondary" style="padding:4px 9px;" id="chk-blink-4hz">4 Hz</button>
           </div>
 
           <div style="width:1px; height:20px; background:var(--border-subtle);"></div>
@@ -58,13 +58,13 @@ class CheckerboardInspector {
             <div class="toggle-switch" id="switch-edges-knob">
               <div class="toggle-switch-knob"></div>
             </div>
-            <span>CONTOUR EDGES</span>
+            <span style="font-weight:700;">CONTOUR EDGES</span>
           </label>
         </div>
 
         <div class="canvas-hud-overlay" style="top: 12px; left: 12px;">
-          <span style="color: var(--accent-cyan);">■ CH-2 REGISTERED</span> &nbsp;|&nbsp; 
-          <span style="color: var(--accent-amber);">■ LROC REFERENCE</span>
+          <span style="color: var(--accent-cyan); font-weight:bold;">■ CH-2 REGISTERED</span> &nbsp;|&nbsp; 
+          <span style="color: var(--accent-amber); font-weight:bold;">■ LROC REFERENCE</span>
         </div>
 
         <div class="canvas-coords-overlay" id="checker-hud-status">
@@ -153,7 +153,7 @@ class CheckerboardInspector {
   }
 
   resizeCanvases() {
-    const width = this.viewport?.clientWidth || 800;
+    const width = this.viewport?.clientWidth || 900;
     const height = this.viewport?.clientHeight || 560;
 
     if (this.canvas) {
@@ -173,45 +173,40 @@ class CheckerboardInspector {
     const h = this.canvas.height;
     const ctxCh2 = this.offscreenCh2.getContext('2d');
     const ctxLroc = this.offscreenLroc.getContext('2d');
-
     const craters = this.presetData?.craters || [];
 
-    // Render CH-2
     this.drawTerrainLayer(ctxCh2, w, h, false, craters);
-    // Render LROC
     this.drawTerrainLayer(ctxLroc, w, h, true, craters);
   }
 
   drawTerrainLayer(ctx, w, h, isLroc, craters) {
     ctx.clearRect(0, 0, w, h);
 
-    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 60, w / 2, h / 2, w * 0.7);
+    const bgGrad = ctx.createRadialGradient(w * 0.45, h * 0.4, 40, w / 2, h / 2, w * 0.85);
     if (isLroc) {
-      bgGrad.addColorStop(0, '#2D3748');
-      bgGrad.addColorStop(0.6, '#1A202C');
-      bgGrad.addColorStop(1, '#0D111A');
+      bgGrad.addColorStop(0, '#384357');
+      bgGrad.addColorStop(0.5, '#222B3D');
+      bgGrad.addColorStop(1, '#0F1524');
     } else {
-      bgGrad.addColorStop(0, '#334155');
-      bgGrad.addColorStop(0.6, '#1E293B');
-      bgGrad.addColorStop(1, '#0B0F19');
+      bgGrad.addColorStop(0, '#424E66');
+      bgGrad.addColorStop(0.5, '#28344D');
+      bgGrad.addColorStop(1, '#111728');
     }
 
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
     // Micro speckle
+    const seed = isLroc ? 37 : 89;
     ctx.fillStyle = isLroc ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.06)';
-    const seed = isLroc ? 42 : 84;
     for (let i = 0; i < 500; i++) {
-      const rx = ((Math.sin(i * 77 + seed) * 10000) % 1 + 1) % 1 * w;
-      const ry = ((Math.cos(i * 44 + seed) * 10000) % 1 + 1) % 1 * h;
-      const rRad = ((i % 4) + 1) * 0.8;
+      const rx = ((Math.sin(i * 123 + seed) * 10000) % 1 + 1) % 1 * w;
+      const ry = ((Math.cos(i * 456 + seed) * 10000) % 1 + 1) % 1 * h;
       ctx.beginPath();
-      ctx.arc(rx, ry, rRad, 0, Math.PI * 2);
+      ctx.arc(rx, ry, ((i % 4) + 1) * 0.8, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Craters
     craters.forEach((crater) => {
       const center = isLroc ? crater.lroc_center : crater.ch2_center;
       const cx = (center[0] / 1000) * w;
@@ -224,11 +219,20 @@ class CheckerboardInspector {
       ctx.translate(cx, cy);
       ctx.rotate(rot);
 
-      // Rim
+      // Ejecta halo
+      const ejectaGrad = ctx.createRadialGradient(0, 0, a * 0.8, 0, 0, a * 1.5);
+      ejectaGrad.addColorStop(0, isLroc ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.18)');
+      ejectaGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = ejectaGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, a * 1.5, b * 1.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sunlit Rim
       const rimGrad = ctx.createLinearGradient(-a, -b, a, b);
       rimGrad.addColorStop(0, '#FFFFFF');
-      rimGrad.addColorStop(0.35, '#94A3B8');
-      rimGrad.addColorStop(0.7, '#0F172A');
+      rimGrad.addColorStop(0.3, '#CBD5E1');
+      rimGrad.addColorStop(0.65, '#1E293B');
       rimGrad.addColorStop(1, '#020617');
 
       ctx.beginPath();
@@ -236,16 +240,20 @@ class CheckerboardInspector {
       ctx.fillStyle = rimGrad;
       ctx.fill();
 
-      // Interior
+      // Dark floor
       ctx.beginPath();
-      ctx.ellipse(a * 0.12, b * 0.12, a * 0.75, b * 0.75, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#05070D';
+      ctx.ellipse(a * 0.15, b * 0.15, a * 0.72, b * 0.72, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#060911';
       ctx.fill();
 
-      if (a > 30) {
+      if (a > 24) {
+        const peakGrad = ctx.createRadialGradient(a * 0.05, b * 0.05, 1, a * 0.05, b * 0.05, a * 0.2);
+        peakGrad.addColorStop(0, '#FFFFFF');
+        peakGrad.addColorStop(0.6, '#94A3B8');
+        peakGrad.addColorStop(1, '#0F172A');
         ctx.beginPath();
-        ctx.arc(a * 0.05, b * 0.05, a * 0.15, 0, Math.PI * 2);
-        ctx.fillStyle = isLroc ? '#CBD5E1' : '#F1F5F9';
+        ctx.arc(a * 0.05, b * 0.05, a * 0.18, 0, Math.PI * 2);
+        ctx.fillStyle = peakGrad;
         ctx.fill();
       }
 
@@ -263,12 +271,10 @@ class CheckerboardInspector {
 
     this.ctx.clearRect(0, 0, w, h);
 
-    // If blinking in whole-frame mode
     if (this.blinkRateHz > 0) {
       const source = (this.blinkPhase === 0) ? this.offscreenCh2 : this.offscreenLroc;
       this.ctx.drawImage(source, 0, 0);
     } else {
-      // 8x8 Checkerboard pattern
       for (let r = 0; r < N; r++) {
         for (let c = 0; c < N; c++) {
           const isEven = (r + c) % 2 === 0;
@@ -278,18 +284,16 @@ class CheckerboardInspector {
 
           this.ctx.drawImage(source, sx, sy, cellW, cellH, sx, sy, cellW, cellH);
 
-          // Subtle neon boundary divider for checker cells
-          this.ctx.strokeStyle = isEven ? 'rgba(0, 240, 255, 0.25)' : 'rgba(255, 179, 0, 0.25)';
+          this.ctx.strokeStyle = isEven ? 'rgba(0, 242, 254, 0.35)' : 'rgba(255, 184, 0, 0.35)';
           this.ctx.lineWidth = 1;
           this.ctx.strokeRect(sx, sy, cellW, cellH);
         }
       }
     }
 
-    // High-contrast crater contours if enabled
     if (this.showEdges && this.presetData?.craters) {
-      this.ctx.strokeStyle = 'rgba(0, 230, 118, 0.85)';
-      this.ctx.lineWidth = 1.5;
+      this.ctx.strokeStyle = 'rgba(16, 185, 129, 0.9)';
+      this.ctx.lineWidth = 1.8;
       this.ctx.setLineDash([4, 3]);
 
       this.presetData.craters.forEach(crater => {
