@@ -18,6 +18,7 @@ class CheckerboardInspector {
     this.blinkPhase = 0;
     this.blinkInterval = null;
     this.presetData = null;
+    this.isRegisteredMode = true;
 
     this.canvas = null;
     this.ctx = null;
@@ -168,6 +169,13 @@ class CheckerboardInspector {
     this.bakeOffscreenTerrain();
   }
 
+  setRegistrationMode(isRegistered) {
+    this.isRegisteredMode = isRegistered;
+    this.bakeOffscreenTerrain();
+    this.updateHUD();
+    this.render();
+  }
+
   bakeOffscreenTerrain() {
     const w = this.canvas.width;
     const h = this.canvas.height;
@@ -181,6 +189,16 @@ class CheckerboardInspector {
 
   drawTerrainLayer(ctx, w, h, isLroc, craters) {
     ctx.clearRect(0, 0, w, h);
+
+    const rawOffset = (!isLroc && !this.isRegisteredMode) ? { x: 14.28, y: -8.91 } : { x: 0, y: 0 };
+    const rawRot = (!isLroc && !this.isRegisteredMode) ? 0.000733 : 0;
+
+    ctx.save();
+    if (rawOffset.x !== 0 || rawOffset.y !== 0) {
+      ctx.translate(w / 2, h / 2);
+      ctx.rotate(rawRot);
+      ctx.translate(-w / 2 + rawOffset.x, -h / 2 + rawOffset.y);
+    }
 
     const bgGrad = ctx.createRadialGradient(w * 0.45, h * 0.4, 40, w / 2, h / 2, w * 0.85);
     if (isLroc) {
@@ -259,6 +277,8 @@ class CheckerboardInspector {
 
       ctx.restore();
     });
+
+    ctx.restore();
   }
 
   render() {

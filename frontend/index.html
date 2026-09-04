@@ -12,7 +12,7 @@
 <body>
 
   <!-- ======================================================================
-       Telemetry Header
+       Header Mission Control
        ====================================================================== -->
   <header class="header-mission-control">
     <div class="brand-section">
@@ -25,7 +25,7 @@
       </div>
       <div class="brand-titles">
         <h1>CHANDRA<span>ALIGN</span></h1>
-        <div class="brand-tagline">ISRO SIH // CHANDRAYAAN-2 &bull; LROC SUB-PIXEL REGISTRATION</div>
+        <div class="brand-tagline">ISRO SIH // CHANDRAYAAN-2 OHRC &bull; LROC SUB-PIXEL REGISTRATION ENGINE</div>
       </div>
     </div>
 
@@ -34,7 +34,7 @@
       <div class="telemetry-chip">
         <div class="pulse-dot"></div>
         <span class="chip-label">UTC:</span>
-        <span class="chip-value" id="hdr-utc-clock">2026-09-02 08:30:00 UTC</span>
+        <span class="chip-value" id="hdr-utc-clock">2026-09-04 07:00:00 UTC</span>
       </div>
 
       <div class="telemetry-chip">
@@ -44,85 +44,99 @@
 
       <div class="telemetry-chip">
         <span class="chip-label">SENSORS:</span>
-        <span class="chip-value" id="hdr-sensor-info">CH-2 OHRC / LROC</span>
+        <span class="chip-value" id="hdr-sensor-info">CH-2 OHRC (0.25m) / LROC (0.50m)</span>
       </div>
 
-      <div class="telemetry-chip">
+      <div class="telemetry-chip highlight-chip">
         <div class="pulse-dot cyan"></div>
-        <span class="chip-label">RMSE:</span>
-        <span class="chip-value" style="color: var(--accent-cyan);" id="hdr-subpixel-rmse">0.2643 px</span>
+        <span class="chip-label">ALIGNMENT RMSE:</span>
+        <span class="chip-value" id="hdr-subpixel-rmse">0.2643 px</span>
       </div>
     </div>
 
-    <!-- Header Controls -->
+    <!-- Header Quick Actions -->
     <div class="header-controls">
-      <div class="select-preset-wrapper">
-        <select class="select-preset" id="select-lunar-preset">
-          <option value="boguslawsky_south_pole">Preset 1: Boguslawsky Crater (70.9°S)</option>
-          <option value="shackleton_rim">Preset 2: Shackleton Crater Rim (89.9°S)</option>
-          <option value="tycho_crater_rays">Preset 3: Tycho Central Peak (43.3°S)</option>
-        </select>
-      </div>
+      <button class="btn-secondary" id="btn-open-tour" title="Learn how ChandraAlign works in 60 seconds">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        HOW IT WORKS
+      </button>
+
+      <button class="btn-secondary" id="btn-open-upload" title="Test with custom image pair">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        UPLOAD PAIR
+      </button>
+
+      <a href="presentation.html" class="btn-secondary btn-slides" target="_blank" title="Open SIH Pitch Deck">
+        📊 SIH SLIDES
+      </a>
 
       <button class="btn-primary" id="btn-run-registration">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
-        RUN REGISTRATION
+        AUTO ALIGN
       </button>
     </div>
   </header>
 
   <!-- ======================================================================
-       Tab Navigation Ribbon
+       Step-by-Step Navigation Ribbon (Clear 4-Stage Workflow)
        ====================================================================== -->
   <nav class="navigation-bar">
-    <div class="tab-buttons">
-      <button class="tab-btn active" data-tab="tab-landmarks">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="9"></circle>
-          <ellipse cx="12" cy="12" rx="7" ry="4"></ellipse>
-        </svg>
-        Tab 1: AI Crater Landmark Segmentation
-        <span class="badge-pill" id="badge-crater-count">10 Landmarks</span>
+    <div class="workflow-stepper">
+      <!-- Step 1 -->
+      <button class="step-nav-btn active" data-tab="tab-landmarks">
+        <div class="step-indicator">1</div>
+        <div class="step-info">
+          <div class="step-title">Raw Swaths & AI Landmarks</div>
+          <div class="step-desc">Input pairs & crater segmentation</div>
+        </div>
+        <span class="step-badge" id="badge-crater-count">10 Landmarks</span>
       </button>
 
-      <button class="tab-btn" data-tab="tab-matching">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7" height="7"></rect>
-          <rect x="14" y="3" width="7" height="7"></rect>
-          <rect x="14" y="14" width="7" height="7"></rect>
-          <rect x="3" y="14" width="7" height="7"></rect>
-        </svg>
-        Tab 2: Keypoint Matches & 10x10 Heatmap
-        <span class="badge-pill">487 Inliers</span>
+      <div class="step-arrow">›</div>
+
+      <!-- Step 2 -->
+      <button class="step-nav-btn" data-tab="tab-matching">
+        <div class="step-indicator">2</div>
+        <div class="step-info">
+          <div class="step-title">AI Tie-Points & ANMS Grid</div>
+          <div class="step-desc">Epipolar matches & 100-sector density</div>
+        </div>
+        <span class="step-badge">487 Inliers</span>
       </button>
 
-      <button class="tab-btn" data-tab="tab-verification">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="15 3 21 3 21 9"></polyline>
-          <polyline points="9 21 3 21 3 15"></polyline>
-          <line x1="21" y1="3" x2="14" y2="10"></line>
-          <line x1="3" y1="21" x2="10" y2="14"></line>
-        </svg>
-        Tab 3: Verification & Alignment Inspectors
-        <span class="badge-pill">Curtain + 8x8</span>
+      <div class="step-arrow">›</div>
+
+      <!-- Step 3 -->
+      <button class="step-nav-btn" data-tab="tab-verification">
+        <div class="step-indicator">3</div>
+        <div class="step-info">
+          <div class="step-title">Interactive Verification</div>
+          <div class="step-desc">Curtain swipe, 8x8 grid & before/after</div>
+        </div>
+        <span class="step-badge highlight">Sub-Pixel Lock</span>
       </button>
 
-      <button class="tab-btn" data-tab="tab-telemetry">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 20V10"></path>
-          <path d="M12 20V4"></path>
-          <path d="M6 20v-6"></path>
-        </svg>
-        Tab 4: Telemetry Metrics & Export
-        <span class="badge-pill" style="color:var(--accent-emerald); border-color:rgba(16,185,129,0.4);">0.2643 px</span>
-      </button>
-    </div>
+      <div class="step-arrow">›</div>
 
-    <div class="system-status-indicator">
-      <span>SUB-PIXEL ENGINE:</span>
-      <span class="mode-badge">HOMOGRAPHY + TPS ACTIVE</span>
+      <!-- Step 4 -->
+      <button class="step-nav-btn" data-tab="tab-telemetry">
+        <div class="step-indicator">4</div>
+        <div class="step-info">
+          <div class="step-title">Accuracy & Report</div>
+          <div class="step-desc">RMSE metrics, matrix & export</div>
+        </div>
+        <span class="step-badge green">0.264 px</span>
+      </button>
     </div>
   </nav>
 
@@ -132,9 +146,32 @@
   <main class="main-container">
 
     <!-- ====================================================================
-         TAB 1: AI Crater Landmark Segmentation
+         STEP 1: Raw Swaths & AI Landmarks
          ==================================================================== -->
     <section class="tab-pane active" id="pane-tab-landmarks">
+      <!-- Preset Region Quick Bar -->
+      <div class="region-quickbar">
+        <div class="quickbar-label">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="12 8 8 12 12 16 12 8"></polygon>
+            <polygon points="12 8 16 12 12 16 12 8"></polygon>
+          </svg>
+          SELECT LUNAR REGION:
+        </div>
+        <div class="preset-pills-group" id="preset-pills-container">
+          <button class="preset-pill active" data-preset="boguslawsky_south_pole">
+            🌙 Boguslawsky Crater (70.9°S)
+          </button>
+          <button class="preset-pill" data-preset="shackleton_rim">
+            ❄️ Shackleton Crater Rim (89.9°S)
+          </button>
+          <button class="preset-pill" data-preset="tycho_crater_rays">
+            🌋 Tycho Central Peak (43.3°S)
+          </button>
+        </div>
+      </div>
+
       <!-- Dual Synced Canvas Viewers -->
       <div class="canvas-viewers-wrapper">
         <!-- CH-2 Optical Canvas -->
@@ -148,8 +185,8 @@
               <button class="mini-tool-btn" id="btn-zoom-in-ch2" title="Zoom In">+</button>
               <button class="mini-tool-btn" id="btn-zoom-out-ch2" title="Zoom Out">-</button>
               <button class="mini-tool-btn" id="btn-zoom-reset-ch2" title="Reset Zoom">1:1</button>
-              <div style="width:1px; height:14px; background:var(--border-subtle); margin:0 2px;"></div>
-              <span style="color:var(--accent-cyan); font-weight:700; font-size:0.68rem;">AI ELLIPSES (CYAN)</span>
+              <div class="tool-sep"></div>
+              <span class="tag-legend-cyan">AI ELLIPSES (CYAN)</span>
             </div>
           </div>
           <div class="canvas-viewport">
@@ -170,8 +207,8 @@
               <button class="mini-tool-btn" id="btn-zoom-in-lroc" title="Zoom In">+</button>
               <button class="mini-tool-btn" id="btn-zoom-out-lroc" title="Zoom Out">-</button>
               <button class="mini-tool-btn" id="btn-zoom-reset-lroc" title="Reset Zoom">1:1</button>
-              <div style="width:1px; height:14px; background:var(--border-subtle); margin:0 2px;"></div>
-              <span style="color:var(--accent-amber); font-weight:700; font-size:0.68rem;">CORRESPONDING (AMBER)</span>
+              <div class="tool-sep"></div>
+              <span class="tag-legend-amber">CORRESPONDING (AMBER)</span>
             </div>
           </div>
           <div class="canvas-viewport">
@@ -202,10 +239,10 @@
               <input type="text" id="input-crater-search" placeholder="Search crater ID or name..." />
             </div>
 
-            <div style="display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-secondary);">
+            <div class="slider-control-group">
               <span>CONFIDENCE:</span>
-              <input type="range" id="filter-confidence-slider" min="0.70" max="0.99" step="0.01" value="0.85" style="width:110px; accent-color:var(--accent-cyan);" />
-              <span id="filter-confidence-val" style="color:var(--accent-cyan); font-weight:bold;">85%</span>
+              <input type="range" id="filter-confidence-slider" min="0.70" max="0.99" step="0.01" value="0.85" />
+              <span id="filter-confidence-val" class="value-highlight">85%</span>
             </div>
           </div>
         </div>
@@ -233,9 +270,17 @@
     </section>
 
     <!-- ====================================================================
-         TAB 2: Keypoint Matches & 10x10 ANMS Uniformity Heatmap
+         STEP 2: AI Tie-Points & 10x10 ANMS Grid
          ==================================================================== -->
     <section class="tab-pane" id="pane-tab-matching">
+      <!-- Feature Matching Banner -->
+      <div class="explainer-banner">
+        <div class="explainer-icon">🎯</div>
+        <div class="explainer-text">
+          <strong>How Epipolar Matching Works:</strong> Deep feature extraction pairs corresponding terrain points across both sensors. Outliers with high residual errors are filtered out via robust RANSAC, leaving high-confidence inliers to compute the sub-pixel homography matrix.
+        </div>
+      </div>
+
       <div class="matches-grid-wrapper">
         <!-- Left: Side-by-Side Match Line Canvas -->
         <div class="hud-panel">
@@ -247,8 +292,10 @@
               </svg>
               Dual-Swath Epipolar Match Vectors
             </div>
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);" id="match-vector-stats">
-              DISPLAYING: 31 VECTORS | INLIERS: 487 | RESIDUAL: 0.2643 px
+            <div class="match-filter-pills" id="match-filter-pills">
+              <button class="filter-pill active" data-filter="all">All (509)</button>
+              <button class="filter-pill" data-filter="inliers">Inliers (487)</button>
+              <button class="filter-pill" data-filter="outliers">Outliers (22)</button>
             </div>
           </div>
 
@@ -276,14 +323,14 @@
               </svg>
               10x10 ANMS Spatial Uniformity Heatmap
             </div>
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-emerald); font-weight:700;">
-              U = 0.9972 (UNIFORM)
+            <div class="uniformity-status">
+              U = 0.9972 (OPTIMAL)
             </div>
           </div>
 
           <div class="anms-heatmap-container">
-            <div style="font-size:0.75rem; color:var(--text-secondary); line-height:1.4;">
-              Adaptive Non-Maximal Suppression (ANMS) distributes keypoints evenly across 100 lunar spatial sectors to prevent clustering around crater rims and eliminate homography singularity.
+            <div class="anms-explanation">
+              <strong>Adaptive Non-Maximal Suppression (ANMS):</strong> Spreads keypoints evenly across 100 lunar sub-swath sectors to prevent clustering around crater rims and avoid matrix singularity.
             </div>
 
             <!-- 10x10 Grid Mount -->
@@ -295,7 +342,7 @@
               <span style="color:var(--accent-amber); font-weight:600;">DENSE (7+)</span>
             </div>
 
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-cyan); background:#060A14; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);" id="anms-hover-info">
+            <div class="anms-hover-box" id="anms-hover-info">
               Hover over a sector cell or click to filter match vectors.
             </div>
           </div>
@@ -304,24 +351,36 @@
     </section>
 
     <!-- ====================================================================
-         TAB 3: Verification & Alignment Inspectors
+         STEP 3: Interactive Verification & Visualizer
          ==================================================================== -->
     <section class="tab-pane" id="pane-tab-verification">
-      <!-- Inspector Mode Toolbar -->
-      <div class="inspector-toolbar">
+      <!-- Hero Comparison & Registration State Bar -->
+      <div class="verification-hero-bar">
+        <div class="reg-state-group">
+          <span class="reg-state-label">ALIGNMENT STATE:</span>
+          <div class="reg-state-toggle" id="reg-state-toggle-group">
+            <button class="state-toggle-btn" id="btn-state-unaligned" title="Simulate raw sensor offset">
+              ❌ BEFORE (Raw Unaligned)
+            </button>
+            <button class="state-toggle-btn active" id="btn-state-registered" title="Lock into sub-pixel registration">
+              ✅ AFTER (Sub-Pixel Locked)
+            </button>
+          </div>
+        </div>
+
         <div class="inspector-toggle-group">
           <button class="toggle-pill-btn active" id="btn-subtab-curtain">
-            SPLIT-SCREEN CURTAIN SLIDER
+            SPLIT-SCREEN CURTAIN
           </button>
           <button class="toggle-pill-btn" id="btn-subtab-checker">
-            8x8 CHECKERBOARD INSPECTOR
+            8x8 CHECKERBOARD
           </button>
         </div>
 
-        <div style="display:flex; align-items:center; gap:16px;">
-          <!-- Micro-step Nudge Controls for sub-pixel inspection -->
-          <div style="display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-secondary);">
-            <span style="font-weight:700;">NUDGE:</span>
+        <div class="verification-quick-controls">
+          <!-- Nudge Controls -->
+          <div class="nudge-controls-group">
+            <span class="nudge-label">NUDGE:</span>
             <button class="control-btn-icon" id="btn-nudge-left" title="Nudge X -0.1px">◀</button>
             <button class="control-btn-icon" id="btn-nudge-right" title="Nudge X +0.1px">▶</button>
             <button class="control-btn-icon" id="btn-nudge-up" title="Nudge Y -0.1px">▲</button>
@@ -329,16 +388,21 @@
             <button class="control-btn-icon" id="btn-nudge-reset" title="Reset Nudge">↺</button>
           </div>
 
-          <div style="width:1px; height:20px; background:var(--border-subtle);"></div>
+          <div class="tool-sep"></div>
 
           <!-- Difference Mode Toggle -->
-          <label class="toggle-switch-wrapper" id="toggle-diff-mode">
+          <label class="toggle-switch-wrapper" id="toggle-diff-mode" title="Highlight sub-pixel pixel intensity differences">
             <div class="toggle-switch" id="switch-diff-knob">
               <div class="toggle-switch-knob"></div>
             </div>
-            <span style="font-weight:700;">DIFFERENCE BLEND</span>
+            <span class="toggle-label">DIFFERENCE BLEND</span>
           </label>
         </div>
+      </div>
+
+      <!-- Quick Inspection Tip -->
+      <div class="inspection-tip-bar" id="inspection-tip-bar">
+        💡 <strong>Pro Tip:</strong> Drag the vertical neon divider across the lunar terrain to inspect crater rim alignment. Toggle <strong>"BEFORE vs AFTER"</strong> above to see how deep homography eliminates terrain parallax!
       </div>
 
       <!-- Subpanel 1: Curtain Slider Mount -->
@@ -353,7 +417,7 @@
     </section>
 
     <!-- ====================================================================
-         TAB 4: Telemetry Metrics & Export Engine
+         STEP 4: Accuracy & Scientific Telemetry
          ==================================================================== -->
     <section class="tab-pane" id="pane-tab-telemetry">
       <!-- 4 Primary KPI Cards -->
@@ -362,7 +426,7 @@
         <div class="metric-kpi-card">
           <div class="kpi-title">
             <span>Sub-Pixel Registration RMSE</span>
-            <span style="color:var(--accent-cyan); font-weight:700;">TARGET: &lt;0.5 px</span>
+            <span class="kpi-target-tag">TARGET: &lt;0.5 px</span>
           </div>
           <div class="kpi-value cyan" id="kpi-rmse-px">0.2643 px</div>
           <div class="kpi-subtext" id="kpi-rmse-meters">≈ 0.0661 m ground resolution</div>
@@ -372,7 +436,7 @@
         <div class="metric-kpi-card emerald">
           <div class="kpi-title">
             <span>ANMS Spatial Uniformity Index</span>
-            <span style="color:var(--accent-emerald); font-weight:700;">U &ge; 0.95</span>
+            <span class="kpi-target-tag emerald">U &ge; 0.95</span>
           </div>
           <div class="kpi-value emerald" id="kpi-uniformity">0.9972</div>
           <div class="kpi-subtext">Optimal 100-sector coverage</div>
@@ -382,7 +446,7 @@
         <div class="metric-kpi-card">
           <div class="kpi-title">
             <span>RANSAC Inlier Ratio</span>
-            <span style="color:var(--accent-cyan); font-weight:700;">PASS</span>
+            <span class="kpi-target-tag">PASS</span>
           </div>
           <div class="kpi-value cyan" id="kpi-inlier-ratio">95.74%</div>
           <div class="kpi-subtext" id="kpi-inlier-count">487 / 509 match vectors</div>
@@ -392,7 +456,7 @@
         <div class="metric-kpi-card amber">
           <div class="kpi-title">
             <span>Structural Similarity (SSIM)</span>
-            <span style="color:var(--accent-amber); font-weight:700;">POST-REG</span>
+            <span class="kpi-target-tag amber">POST-REG</span>
           </div>
           <div class="kpi-value amber" id="kpi-ssim">0.8739</div>
           <div class="kpi-subtext" id="kpi-ssim-gain">Pre: 0.5421 (+33.18%)</div>
@@ -413,13 +477,13 @@
               </svg>
               Estimated Sub-Pixel Homography Matrix [H (3x3)]
             </div>
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">
+            <div class="matrix-status-tag">
               ROT: +0.042° | SCALE: 1.0018
             </div>
           </div>
 
-          <div style="margin-bottom: 12px; font-size: 0.78rem; color: var(--text-secondary);">
-            Calculated transformation matrix mapping Chandrayaan-2 coordinates to LROC reference frame:
+          <div class="matrix-explainer">
+            Calculated 2D perspective transformation matrix mapping Chandrayaan-2 coordinates to LROC reference frame:
           </div>
 
           <div class="matrix-display" id="homography-matrix-grid">
@@ -439,7 +503,7 @@
               </svg>
               Pipeline Latency Breakdown (162 ms Total)
             </div>
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-emerald); font-weight:700;" id="kpi-latency-total">
+            <div class="latency-total-tag" id="kpi-latency-total">
               162 ms
             </div>
           </div>
@@ -473,7 +537,7 @@
           </div>
         </div>
 
-        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+        <div class="export-actions-row">
           <button class="btn-primary" id="btn-export-report-json">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -503,6 +567,129 @@
     </section>
 
   </main>
+
+  <!-- ======================================================================
+       Interactive Guided Tour Modal (Quick 60-Second Walkthrough)
+       ====================================================================== -->
+  <div class="modal-backdrop" id="modal-tour-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="modal-icon">🛰️</span>
+          ChandraAlign: How Sub-Pixel Lunar Registration Works
+        </div>
+        <button class="modal-close-btn" id="btn-close-tour">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Tour Slide 1 -->
+        <div class="tour-slide active" id="tour-slide-1">
+          <div class="slide-badge">STEP 1 OF 3</div>
+          <h3>The Multi-Modal Lunar Challenge</h3>
+          <p>
+            Chandrayaan-2 OHRC ($0.25\text{ m/pixel}$) and NASA LROC NAC ($0.50\text{ m/pixel}$) have a <strong>2:1 resolution difference</strong> and drastically different solar shadow angles across polar craters.
+          </p>
+          <div class="tour-visual-card">
+            <div class="tour-preview-grid">
+              <div class="preview-item">
+                <span class="tag-ch2">CH-2 OHRC</span>
+                <p>High-res optical swath ($0.25\text{ m/px}$)</p>
+              </div>
+              <div class="preview-vs">VS</div>
+              <div class="preview-item">
+                <span class="tag-lroc">LROC NAC</span>
+                <p>Global basemap ($0.50\text{ m/px}$)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tour Slide 2 -->
+        <div class="tour-slide" id="tour-slide-2">
+          <div class="slide-badge">STEP 2 OF 3</div>
+          <h3>AI Crater Ellipses & 10x10 ANMS Grid</h3>
+          <p>
+            ChandraAlign detects invariant crater rim geometries and extracts deep epipolar tie-points. <strong>Adaptive Non-Maximal Suppression (ANMS)</strong> distributes points uniformly across 100 sectors to prevent clustering.
+          </p>
+          <div class="tour-visual-card">
+            <div class="tour-metric-preview">
+              <div>🎯 <strong>487 Inlier Vectors</strong></div>
+              <div>📐 <strong>U = 0.9972 Uniformity</strong></div>
+              <div>⚡ <strong>162 ms Pipeline</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tour Slide 3 -->
+        <div class="tour-slide" id="tour-slide-3">
+          <div class="slide-badge">STEP 3 OF 3</div>
+          <h3>Sub-Pixel Interactive Verification</h3>
+          <p>
+            Inspect the resulting registered terrain with the <strong>Split-Screen Curtain</strong>, <strong>8x8 Checkerboard</strong>, and <strong>Difference Blend</strong> down to $\mathbf{0.264\text{ px}}$ ($\approx 6.6\text{ cm}$ on the lunar ground)!
+          </p>
+          <div class="tour-visual-card highlight">
+            <div style="font-size:1.1rem; font-weight:bold; color:var(--accent-cyan); text-align:center;">
+              ✨ RMSE = 0.2643 px &bull; SSIM = 0.8739
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-tour-prev" style="display:none;">PREVIOUS</button>
+        <div class="tour-dots">
+          <span class="dot active" data-slide="1"></span>
+          <span class="dot" data-slide="2"></span>
+          <span class="dot" data-slide="3"></span>
+        </div>
+        <button class="btn-primary" id="btn-tour-next">NEXT STEP ›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       Custom Image Upload Modal
+       ====================================================================== -->
+  <div class="modal-backdrop" id="modal-upload-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="modal-icon">📁</span>
+          Test Custom Lunar Image Pair
+        </div>
+        <button class="modal-close-btn" id="btn-close-upload">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="color:var(--text-secondary); margin-bottom:14px; font-size:0.85rem;">
+          Select or drop custom Chandrayaan-2 OHRC and NASA LROC NAC image swaths (`.tif`, `.png`, `.jpg`):
+        </p>
+
+        <div class="upload-dropzone-grid">
+          <!-- Dropzone CH-2 -->
+          <div class="dropzone-box" id="dropzone-ch2">
+            <div class="dropzone-icon">🛰️</div>
+            <div class="dropzone-title">Chandrayaan-2 Swath (0.25m)</div>
+            <div class="dropzone-sub">Drag & drop or browse</div>
+            <input type="file" id="file-input-ch2" accept="image/*,.tif,.tiff" style="display:none;" />
+          </div>
+
+          <!-- Dropzone LROC -->
+          <div class="dropzone-box" id="dropzone-lroc">
+            <div class="dropzone-icon">🌕</div>
+            <div class="dropzone-title">LROC NAC Basemap (0.50m)</div>
+            <div class="dropzone-sub">Drag & drop or browse</div>
+            <input type="file" id="file-input-lroc" accept="image/*,.tif,.tiff" style="display:none;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-cancel-upload">CANCEL</button>
+        <button class="btn-primary" id="btn-process-upload">⚡ PROCESS & ALIGN PAIR</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast Notification Mount -->
   <div class="toast-container" id="toast-container"></div>

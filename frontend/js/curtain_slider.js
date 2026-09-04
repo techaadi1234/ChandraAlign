@@ -16,6 +16,7 @@ class CurtainSliderInspector {
     this.isDragging = false;
     this.zoom = 1.0;
     this.diffMode = false;
+    this.isRegisteredMode = true; // true = aligned (0.26px), false = raw unaligned (14.28px offset)
     this.nudgeOffset = { x: 0, y: 0 };
 
     this.cvsCh2 = null;
@@ -175,6 +176,12 @@ class CurtainSliderInspector {
     });
   }
 
+  setRegistrationMode(isRegistered) {
+    this.isRegisteredMode = isRegistered;
+    this.updateHUD();
+    this.redraw();
+  }
+
   redraw() {
     if (!this.cvsCh2 || !this.cvsLroc) return;
     const ctxCh2 = this.cvsCh2.getContext('2d');
@@ -192,11 +199,18 @@ class CurtainSliderInspector {
       craters: this.presetData?.craters || []
     });
 
-    // CH-2 Registered Layer
+    // CH-2 Layer (apply unaligned sensor shift if not registered)
+    const rawOffset = this.isRegisteredMode ? { x: 0, y: 0 } : { x: 14.28, y: -8.91 };
+    const effectiveOffset = {
+      x: this.nudgeOffset.x + rawOffset.x,
+      y: this.nudgeOffset.y + rawOffset.y
+    };
+
     this.drawLunarShadedRelief(ctxCh2, w, h, {
       isLroc: false,
       zoom: this.zoom,
-      offset: this.nudgeOffset,
+      offset: effectiveOffset,
+      rotationRad: this.isRegisteredMode ? 0 : 0.000733,
       craters: this.presetData?.craters || []
     });
 
@@ -212,6 +226,9 @@ class CurtainSliderInspector {
 
     ctx.translate(w / 2, h / 2);
     ctx.scale(options.zoom, options.zoom);
+    if (options.rotationRad) {
+      ctx.rotate(options.rotationRad);
+    }
     ctx.translate(-w / 2 + (options.offset.x || 0), -h / 2 + (options.offset.y || 0));
 
     const bgGrad = ctx.createRadialGradient(w * 0.45, h * 0.4, 40, w / 2, h / 2, w * 0.85);
