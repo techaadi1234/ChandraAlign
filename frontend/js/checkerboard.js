@@ -200,31 +200,45 @@ class CheckerboardInspector {
       ctx.translate(-w / 2 + rawOffset.x, -h / 2 + rawOffset.y);
     }
 
-    const bgGrad = ctx.createRadialGradient(w * 0.45, h * 0.4, 40, w / 2, h / 2, w * 0.85);
+    // 1. Photorealistic Regolith Basemap with Albedo Gradient
+    const bgGrad = ctx.createRadialGradient(w * 0.42, h * 0.38, 40, w / 2, h / 2, w * 0.88);
     if (isLroc) {
-      bgGrad.addColorStop(0, '#384357');
-      bgGrad.addColorStop(0.5, '#222B3D');
-      bgGrad.addColorStop(1, '#0F1524');
+      bgGrad.addColorStop(0, '#2E3846');
+      bgGrad.addColorStop(0.35, '#1F2833');
+      bgGrad.addColorStop(0.75, '#131A24');
+      bgGrad.addColorStop(1, '#0B0C10');
     } else {
-      bgGrad.addColorStop(0, '#424E66');
-      bgGrad.addColorStop(0.5, '#28344D');
-      bgGrad.addColorStop(1, '#111728');
+      bgGrad.addColorStop(0, '#3A4759');
+      bgGrad.addColorStop(0.35, '#263242');
+      bgGrad.addColorStop(0.75, '#17202C');
+      bgGrad.addColorStop(1, '#0B0C10');
     }
 
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Micro speckle
-    const seed = isLroc ? 37 : 89;
-    ctx.fillStyle = isLroc ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.06)';
-    for (let i = 0; i < 500; i++) {
-      const rx = ((Math.sin(i * 123 + seed) * 10000) % 1 + 1) % 1 * w;
-      const ry = ((Math.cos(i * 456 + seed) * 10000) % 1 + 1) % 1 * h;
+    // 2. High-Frequency Micro-Regolith & Boulder Fields (900+ noise points)
+    const seed = isLroc ? 43 : 97;
+    for (let i = 0; i < 900; i++) {
+      const rx = (((Math.sin(i * 127 + seed) * 10000) % 1 + 1) % 1) * w;
+      const ry = (((Math.cos(i * 311 + seed) * 10000) % 1 + 1) % 1) * h;
+      const rad = ((i % 5) + 1) * 0.75;
+      const lum = ((i % 7) + 1) / 7;
+
+      ctx.fillStyle = isLroc
+        ? `rgba(197, 198, 199, ${0.04 + lum * 0.08})`
+        : `rgba(255, 255, 255, ${0.06 + lum * 0.12})`;
       ctx.beginPath();
-      ctx.arc(rx, ry, ((i % 4) + 1) * 0.8, 0, Math.PI * 2);
+      ctx.arc(rx, ry, rad, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(11, 12, 16, 0.45)';
+      ctx.beginPath();
+      ctx.arc(rx + rad * 0.6, ry + rad * 0.6, rad * 0.8, 0, Math.PI * 2);
       ctx.fill();
     }
 
+    // 3. Render High-Resolution Primary & Secondary Impact Craters
     craters.forEach((crater) => {
       const center = isLroc ? crater.lroc_center : crater.ch2_center;
       const cx = (center[0] / 1000) * w;
@@ -237,41 +251,96 @@ class CheckerboardInspector {
       ctx.translate(cx, cy);
       ctx.rotate(rot);
 
-      // Ejecta halo
-      const ejectaGrad = ctx.createRadialGradient(0, 0, a * 0.8, 0, 0, a * 1.5);
-      ejectaGrad.addColorStop(0, isLroc ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.18)');
-      ejectaGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      // A. Radial Ejecta Ray Streaks
+      const rayCount = Math.floor(Math.min(16, a / 3));
+      ctx.save();
+      for (let r = 0; r < rayCount; r++) {
+        const rayAngle = (r / rayCount) * Math.PI * 2 + (r * 17) % 0.3;
+        const rayLen = a * (1.8 + ((r * 13) % 1.2));
+        const rayGrad = ctx.createLinearGradient(0, 0, Math.cos(rayAngle) * rayLen, Math.sin(rayAngle) * rayLen);
+        rayGrad.addColorStop(0, 'rgba(197, 198, 199, 0.18)');
+        rayGrad.addColorStop(0.5, 'rgba(102, 252, 241, 0.08)');
+        rayGrad.addColorStop(1, 'rgba(11, 12, 16, 0)');
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(rayAngle - 0.08) * rayLen, Math.sin(rayAngle - 0.08) * rayLen);
+        ctx.lineTo(Math.cos(rayAngle + 0.08) * rayLen, Math.sin(rayAngle + 0.08) * rayLen);
+        ctx.closePath();
+        ctx.fillStyle = rayGrad;
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // B. Outer Continuous Ejecta Halo & Hummocky Rim Flank
+      const ejectaGrad = ctx.createRadialGradient(0, 0, a * 0.75, 0, 0, a * 1.6);
+      ejectaGrad.addColorStop(0, isLroc ? 'rgba(197, 198, 199, 0.22)' : 'rgba(255, 255, 255, 0.28)');
+      ejectaGrad.addColorStop(0.6, isLroc ? 'rgba(69, 162, 158, 0.08)' : 'rgba(102, 252, 241, 0.1)');
+      ejectaGrad.addColorStop(1, 'rgba(11, 12, 16, 0)');
       ctx.fillStyle = ejectaGrad;
       ctx.beginPath();
-      ctx.ellipse(0, 0, a * 1.5, b * 1.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, a * 1.6, b * 1.6, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Sunlit Rim
-      const rimGrad = ctx.createLinearGradient(-a, -b, a, b);
-      rimGrad.addColorStop(0, '#FFFFFF');
-      rimGrad.addColorStop(0.3, '#CBD5E1');
-      rimGrad.addColorStop(0.65, '#1E293B');
-      rimGrad.addColorStop(1, '#020617');
+      // C. Raised Sunlit Crater Rim Wall
+      const rimGrad = ctx.createLinearGradient(-a * 1.1, -b * 1.1, a * 1.1, b * 1.1);
+      rimGrad.addColorStop(0, '#FFFFFF'); // Specular sunward crest highlight
+      rimGrad.addColorStop(0.25, '#C5C6C7');
+      rimGrad.addColorStop(0.55, '#2D3A4B');
+      rimGrad.addColorStop(0.78, '#131A24');
+      rimGrad.addColorStop(1, '#05070A');
 
       ctx.beginPath();
       ctx.ellipse(0, 0, a, b, 0, 0, Math.PI * 2);
       ctx.fillStyle = rimGrad;
       ctx.fill();
 
-      // Dark floor
+      // D. Terraced Inner Wall Steps
       ctx.beginPath();
-      ctx.ellipse(a * 0.15, b * 0.15, a * 0.72, b * 0.72, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#060911';
+      ctx.ellipse(-a * 0.04, -b * 0.04, a * 0.88, b * 0.88, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.ellipse(-a * 0.08, -b * 0.08, a * 0.78, b * 0.78, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(197, 198, 199, 0.18)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // E. Deep Shadowed Crater Floor Basin
+      const floorGrad = ctx.createRadialGradient(a * 0.18, b * 0.18, a * 0.1, a * 0.25, b * 0.25, a * 0.75);
+      floorGrad.addColorStop(0, '#0B0C10');
+      floorGrad.addColorStop(0.7, '#060709');
+      floorGrad.addColorStop(1, '#020304');
+
+      ctx.beginPath();
+      ctx.ellipse(a * 0.18, b * 0.18, a * 0.68, b * 0.68, 0, 0, Math.PI * 2);
+      ctx.fillStyle = floorGrad;
       ctx.fill();
 
-      if (a > 24) {
-        const peakGrad = ctx.createRadialGradient(a * 0.05, b * 0.05, 1, a * 0.05, b * 0.05, a * 0.2);
+      // F. Central Uplift Mountain Peak
+      if (a > 20) {
+        const peakX = -a * 0.02;
+        const peakY = -b * 0.02;
+        const peakRadius = a * 0.22;
+
+        const peakGrad = ctx.createRadialGradient(peakX - peakRadius * 0.3, peakY - peakRadius * 0.3, 1, peakX, peakY, peakRadius);
         peakGrad.addColorStop(0, '#FFFFFF');
-        peakGrad.addColorStop(0.6, '#94A3B8');
-        peakGrad.addColorStop(1, '#0F172A');
+        peakGrad.addColorStop(0.4, '#C5C6C7');
+        peakGrad.addColorStop(0.75, '#1F2833');
+        peakGrad.addColorStop(1, 'rgba(11, 12, 16, 0.9)');
+
         ctx.beginPath();
-        ctx.arc(a * 0.05, b * 0.05, a * 0.18, 0, Math.PI * 2);
+        ctx.arc(peakX, peakY, peakRadius, 0, Math.PI * 2);
         ctx.fillStyle = peakGrad;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(peakX, peakY);
+        ctx.lineTo(peakX + peakRadius * 1.8, peakY + peakRadius * 1.4);
+        ctx.lineTo(peakX + peakRadius * 1.2, peakY + peakRadius * 2.2);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(4, 5, 8, 0.85)';
         ctx.fill();
       }
 

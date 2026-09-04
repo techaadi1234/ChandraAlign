@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <!-- Space Starfield Background Canvas -->
+  <canvas id="space-starfield-bg"></canvas>
 
   <!-- ======================================================================
        Header Mission Control
@@ -73,10 +75,6 @@
         </svg>
         UPLOAD PAIR
       </button>
-
-      <a href="presentation.html" class="btn-secondary btn-slides" target="_blank" title="Open SIH Pitch Deck">
-        📊 SIH SLIDES
-      </a>
 
       <button class="btn-primary" id="btn-run-registration">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -695,6 +693,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- Scripts -->
+  <script src="js/starfield.js"></script>
   <script src="js/grid_heatmap.js"></script>
   <script src="js/curtain_slider.js"></script>
   <script src="js/checkerboard.js"></script>
